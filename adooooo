@@ -1,0 +1,207 @@
+using System;
+
+namespace dotnetapp.Models
+{
+    public class Song
+    {
+        public int SongID { get; set; }
+        public string Title { get; set; }
+        public string Artist { get; set; }
+        public string Album { get; set; }
+        public string Genre { get; set; }
+        public int Duration { get; set; }
+        public int PlayCount { get; set; }
+    }
+}
+
+
+CREATE TABLE Songs (
+    SongID INT IDENTITY(1,1) PRIMARY KEY,
+    Title VARCHAR(100),
+    Artist VARCHAR(100),
+    Album VARCHAR(100),
+    Genre VARCHAR(50),
+    Duration INT,
+    PlayCount INT
+);
+
+using System;
+using System.Data;
+using System.Data.SqlClient;
+using dotnetapp.Models;
+
+namespace dotnetapp
+{
+    public static class ConnectionStringProvider
+    {
+        public static string ConnectionString { get; } = "User ID=sa;password=examlyMssql@123;server=localhost;Database=appdb;trusted_connection=false;Persist Security Info=False;Encrypt=False;";
+    }
+
+    public class Program
+    {
+        static string connectionString = ConnectionStringProvider.ConnectionString;
+
+        public static void AddSong(Song song)
+        {
+            using (SqlConnection con = new SqlConnection(connectionString))
+            {
+                SqlDataAdapter adp = new SqlDataAdapter("SELECT * FROM Songs", con);
+                DataSet ds = new DataSet();
+                adp.Fill(ds, "Songs");
+                DataTable dt = ds.Tables["Songs"];
+                DataRow dr = dt.NewRow();
+                dr["Title"] = song.Title;
+                dr["Artist"] = song.Artist;
+                dr["Album"] = song.Album;
+                dr["Genre"] = song.Genre;
+                dr["Duration"] = song.Duration;
+                dr["PlayCount"] = song.PlayCount;
+                dt.Rows.Add(dr);
+                SqlCommandBuilder builder = new SqlCommandBuilder(adp);
+                adp.Update(ds, "Songs");
+                Console.WriteLine("Song added successfully.");
+            }
+        }
+
+        public static void DisplayAllSongs()
+        {
+            using (SqlConnection con = new SqlConnection(connectionString))
+            {
+                SqlDataAdapter adp = new SqlDataAdapter("SELECT * FROM Songs", con);
+                DataSet ds = new DataSet();
+                adp.Fill(ds, "Songs");
+                DataTable dt = ds.Tables["Songs"];
+
+                if (dt.Rows.Count == 0)
+                {
+                    Console.WriteLine("No songs found.");
+                    return;
+                }
+
+                foreach (DataRow row in dt.Rows)
+                {
+                    Console.WriteLine($"{row["SongID"]}, {row["Title"]}, {row["Album"]}, {row["Genre"]}, {row["Duration"]}, {row["PlayCount"]}");
+                }
+            }
+        }
+
+        public static void SearchSongByTitle(string title)
+        {
+            using (SqlConnection con = new SqlConnection(connectionString))
+            {
+                SqlDataAdapter adp = new SqlDataAdapter("SELECT * FROM Songs", con);
+                DataSet ds = new DataSet();
+                adp.Fill(ds, "Songs");
+                DataTable dt = ds.Tables["Songs"];
+
+                bool found = false;
+                foreach (DataRow row in dt.Rows)
+                {
+                    if (row["Title"].ToString().Equals(title, StringComparison.OrdinalIgnoreCase))
+                    {
+                        Console.WriteLine($"{row["SongID"]}, {row["Title"]}, {row["Artist"]}, {row["Album"]}, {row["Genre"]}, {row["Duration"]}, {row["PlayCount"]}");
+                        found = true;
+                    }
+                }
+
+                if (!found)
+                {
+                    Console.WriteLine($"No songs found with Title: {title}.");
+                }
+            }
+        }
+
+        public static void DeleteSongsByGenre(string genre)
+        {
+            using (SqlConnection con = new SqlConnection(connectionString))
+            {
+                SqlDataAdapter adp = new SqlDataAdapter("SELECT * FROM Songs", con);
+                DataSet ds = new DataSet();
+                adp.Fill(ds, "Songs");
+                DataTable dt = ds.Tables["Songs"];
+
+                bool deleted = false;
+                for (int i = dt.Rows.Count - 1; i >= 0; i--)
+                {
+                    if (dt.Rows[i]["Genre"].ToString().Equals(genre, StringComparison.OrdinalIgnoreCase))
+                    {
+                        dt.Rows[i].Delete();
+                        deleted = true;
+                    }
+                }
+
+                if (deleted)
+                {
+                    SqlCommandBuilder builder = new SqlCommandBuilder(adp);
+                    adp.Update(ds, "Songs");
+                    Console.WriteLine($"Songs with genre '{genre}' deleted successfully.");
+                }
+                else
+                {
+                    Console.WriteLine($"No songs found with genre '{genre}'.");
+                }
+            }
+        }
+
+        public static void Main(string[] args)
+        {
+            bool exit = false;
+            while (!exit)
+            {
+                Console.WriteLine("\nMain Menu");
+                Console.WriteLine("1 - Add Song");
+                Console.WriteLine("2 - Display All Songs");
+                Console.WriteLine("3 - Search Song by Title");
+                Console.WriteLine("4 - Delete Songs by Genre");
+                Console.WriteLine("5 - Exit");
+                Console.Write("Enter your choice (1-5): ");
+
+                int choice = int.Parse(Console.ReadLine());
+                switch (choice)
+                {
+                    case 1:
+                        Console.Write("Enter Title: ");
+                        string title = Console.ReadLine();
+                        Console.Write("Enter Artist: ");
+                        string artist = Console.ReadLine();
+                        Console.Write("Enter Album: ");
+                        string album = Console.ReadLine();
+                        Console.Write("Enter Genre: ");
+                        string genre = Console.ReadLine();
+                        Console.Write("Enter Duration: ");
+                        int duration = int.Parse(Console.ReadLine());
+                        Console.Write("Enter Play Count: ");
+                        int playcount = int.Parse(Console.ReadLine());
+                        Song song = new Song { Title = title, Artist = artist, Album = album, Genre = genre, Duration = duration, PlayCount = playcount };
+                        AddSong(song);
+                        break;
+
+                    case 2:
+                        DisplayAllSongs();
+                        break;
+
+                    case 3:
+                        Console.Write("Enter Title to search: ");
+                        string searchTitle = Console.ReadLine();
+                        SearchSongByTitle(searchTitle);
+                        break;
+
+                    case 4:
+                        Console.Write("Enter Genre to delete: ");
+                        string gen = Console.ReadLine();
+                        DeleteSongsByGenre(gen);
+                        break;
+
+                    case 5:
+                        Console.WriteLine("Exiting the application...");
+                        exit = true;
+                        break;
+
+                    default:
+                        Console.WriteLine("Invalid choice.");
+                        break;
+                }
+            }
+        }
+    }
+}
