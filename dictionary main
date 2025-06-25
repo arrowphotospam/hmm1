@@ -1,0 +1,178 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+public class Book
+{
+    public int BookId { get; set; }
+    public string Title { get; set; }
+    public string Author { get; set; }
+    public string Genre { get; set; }
+
+    public void DisplayBookDetails()
+    {
+        Console.WriteLine($"Book ID: {BookId}, Title: {Title}, Author: {Author}, Genre: {Genre}");
+    }
+}
+
+public class LibraryManager
+{
+    public Dictionary<int, Book> Books = new Dictionary<int, Book>();
+
+    public void AddBook(Book book)
+    {
+        if (Books.ContainsKey(book.BookId))
+        {
+            Console.WriteLine($"A book with ID {book.BookId} already exists.");
+        }
+        else
+        {
+            Books.Add(book.BookId, book);
+            Console.WriteLine("Book added successfully.");
+            Console.WriteLine("Details of the added book:");
+            book.DisplayBookDetails();
+        }
+    }
+
+    public void UpdateBook(int bookId, string newTitle, string newAuthor, string newGenre)
+    {
+        if (Books.ContainsKey(bookId))
+        {
+            Book b = Books[bookId];
+            b.Title = newTitle;
+            b.Author = newAuthor;
+            b.Genre = newGenre;
+            Console.WriteLine("Book details updated:");
+            b.DisplayBookDetails();
+        }
+        else
+        {
+            Console.WriteLine($"Invalid Book ID: {bookId}. Please try again.");
+        }
+    }
+
+    public void SearchBook(int bookId)
+    {
+        if (Books.TryGetValue(bookId, out Book book))
+        {
+            book.DisplayBookDetails();
+        }
+        else
+        {
+            Console.WriteLine($"Invalid Book ID: {bookId}. Please try again.");
+        }
+    }
+
+    public void DisplayBooks()
+    {
+        if (Books.Count > 0)
+        {
+            Console.WriteLine("Book Details:");
+            foreach (var b in Books)
+            {
+                b.Value.DisplayBookDetails();
+            }
+        }
+        else
+        {
+            Console.WriteLine("No books available.");
+        }
+    }
+
+    public void SortBooksByTitle()
+    {
+        var sortedBooks = Books.Values.OrderBy(b => b.Title).ToList();
+        Console.WriteLine("Books sorted by Title:");
+        foreach (var book in sortedBooks)
+        {
+            book.DisplayBookDetails();
+        }
+    }
+
+    public void SortBooksByGenre()
+    {
+        var sortedBooks = Books.Values.OrderBy(b => b.Genre).ToList();
+        Console.WriteLine("Books sorted by Genre:");
+        foreach (var book in sortedBooks)
+        {
+            book.DisplayBookDetails();
+        }
+    }
+}
+
+public class Program
+{
+    public static void Main(string[] args)
+    {
+        LibraryManager lm = new LibraryManager();
+
+        while (true)
+        {
+            Console.WriteLine("\nMenu:");
+            Console.WriteLine("1. Add Book");
+            Console.WriteLine("2. Update Book");
+            Console.WriteLine("3. Search Book");
+            Console.WriteLine("4. Display Books");
+            Console.WriteLine("5. Sort Books by Title");
+            Console.WriteLine("6. Sort Books by Genre");
+            Console.WriteLine("7. Exit");
+            Console.Write("Enter your choice: ");
+
+            int choice = int.Parse(Console.ReadLine());
+
+            switch (choice)
+            {
+                case 1:
+                    Console.Write("Enter Book ID: ");
+                    int bId = int.Parse(Console.ReadLine());
+                    Console.Write("Enter Title: ");
+                    string title = Console.ReadLine();
+                    Console.Write("Enter Author: ");
+                    string author = Console.ReadLine();
+                    Console.Write("Enter Genre: ");
+                    string genre = Console.ReadLine();
+                    Book b = new Book { BookId = bId, Title = title, Author = author, Genre = genre };
+                    lm.AddBook(b);
+                    break;
+
+                case 2:
+                    Console.Write("Enter Book ID: ");
+                    int ubId = int.Parse(Console.ReadLine());
+                    Console.Write("Enter Title: ");
+                    string utitle = Console.ReadLine();
+                    Console.Write("Enter Author: ");
+                    string uauthor = Console.ReadLine();
+                    Console.Write("Enter Genre: ");
+                    string ugenre = Console.ReadLine();
+                    lm.UpdateBook(ubId, utitle, uauthor, ugenre);
+                    break;
+
+                case 3:
+                    Console.Write("Enter Book ID to search: ");
+                    int sbId = int.Parse(Console.ReadLine());
+                    lm.SearchBook(sbId);
+                    break;
+
+                case 4:
+                    lm.DisplayBooks();
+                    break;
+
+                case 5:
+                    lm.SortBooksByTitle();
+                    break;
+
+                case 6:
+                    lm.SortBooksByGenre();
+                    break;
+
+                case 7:
+                    Console.WriteLine("Exiting program...");
+                    return;
+
+                default:
+                    Console.WriteLine("Invalid choice, please try again.");
+                    break;
+            }
+        }
+    }
+}
