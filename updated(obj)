@@ -1,0 +1,165 @@
+Collection new
+
+using System;
+using System.Collections.Generic;
+ 
+public class Animal
+{
+    public int AnimalId { get; set; }
+    public string Name { get; set; }
+    public string Type { get; set; }
+    public int Age { get; set; }
+ 
+    public Animal() { }
+}
+ 
+public class AnimalManager
+{
+    public Dictionary animals = new Dictionary();
+ 
+    public void AddAnimal(Animal animal)
+    {
+        if (animals.ContainsKey(animal.AnimalId))
+        {
+            Console.WriteLine("Already exists");
+        }
+        else
+        {
+            animals[animal.AnimalId] = animal;
+            Console.WriteLine("Added successfully");
+        }
+    }
+ 
+    public void EditAnimal(Animal updatedAnimal)
+    {
+        if (animals.ContainsKey(updatedAnimal.AnimalId))
+        {
+            animals[updatedAnimal.AnimalId].Name = updatedAnimal.Name;
+            animals[updatedAnimal.AnimalId].Type = updatedAnimal.Type;
+            animals[updatedAnimal.AnimalId].Age = updatedAnimal.Age;
+            Console.WriteLine("Edited successfully");
+        }
+        else
+        {
+            Console.WriteLine("Not found");
+        }
+    }
+ 
+    public void ListAnimal()
+    {
+        if (animals.Count == 0)
+        {
+            Console.WriteLine("Empty");
+            return;
+        }
+ 
+        foreach (var a in animals.Values)
+        {
+            Console.WriteLine($"AnimalId: {a.AnimalId}, Name: {a.Name}, Type: {a.Type}, Age: {a.Age}");
+        }
+    }
+ 
+    public void DeleteAnimal(int id)
+    {
+        if (animals.ContainsKey(id))
+        {
+            animals.Remove(id);
+            Console.WriteLine("Deleted successfully");
+        }
+        else
+        {
+            Console.WriteLine("Not found");
+        }
+    }
+}
+ 
+public class Program
+{
+    public static void Main(string[] args)
+    {
+        AnimalManager am = new AnimalManager();
+ 
+        while (true)
+        {
+            Console.WriteLine("\nMenu:");
+            Console.WriteLine("1. Add Animal");
+            Console.WriteLine("2. Edit Animal by ID");
+            Console.WriteLine("3. List All Animals");
+            Console.WriteLine("4. Delete Animal by ID");
+            Console.WriteLine("5. Exit");
+            Console.Write("Enter your choice: ");
+            string choice = Console.ReadLine();
+ 
+            switch (choice)
+            {
+                case "1":
+                    Console.Write("Enter Animal ID: ");
+                    int addId = int.Parse(Console.ReadLine());
+                    Console.Write("Enter Animal Name: ");
+                    string name = Console.ReadLine();
+                    Console.Write("Enter Animal Type: ");
+                    string type = Console.ReadLine();
+                    Console.Write("Enter Animal Age: ");
+                    int age = int.Parse(Console.ReadLine());
+ 
+                    Animal newAnimal = new Animal
+                    {
+                        AnimalId = addId,
+                        Name = name,
+                        Type = type,
+                        Age = age
+                    };
+ 
+                    am.AddAnimal(newAnimal);
+                    break;
+ 
+                case "2":
+                    Console.Write("Enter edit Animal ID: ");
+                    int editID = int.Parse(Console.ReadLine());
+ 
+                    if (am.animals.ContainsKey(editID))
+                    {
+                        Console.Write("Enter new name: ");
+                        string newName = Console.ReadLine();
+                        Console.Write("Enter new Animal type: ");
+                        string newType = Console.ReadLine();
+                        Console.Write("Enter new Animal age: ");
+                        int newAge = int.Parse(Console.ReadLine());
+ 
+                        Animal updatedAnimal = new Animal
+                        {
+                            AnimalId = editID,
+                            Name = newName,
+                            Type = newType,
+                            Age = newAge
+                        };
+ 
+                        am.EditAnimal(updatedAnimal);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Not found");
+                    }
+                    break;
+ 
+                case "3":
+                    am.ListAnimal();
+                    break;
+ 
+                case "4":
+                    Console.Write("Enter Delete Animal ID: ");
+                    int delID = int.Parse(Console.ReadLine());
+                    am.DeleteAnimal(delID);
+                    break;
+ 
+                case "5":
+                    Console.WriteLine("Exiting program...");
+                    return;
+ 
+                default:
+                    Console.WriteLine("Invalid choice, please try again.");
+                    break;
+            }
+        }
+    }
+}
