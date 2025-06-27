@@ -1,0 +1,85 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using ContactApp.Models;
+
+namespace ContactApp
+{
+    public class Program
+    {
+        public static void Main(string[] args)
+        {
+            Dictionary<int, Contact> contacts = new Dictionary<int, Contact>();
+
+            while (true)
+            {
+                Console.WriteLine("1 - Add Contact");
+                Console.WriteLine("2 - Update Contact");
+                Console.WriteLine("3 - Delete Contact");
+                Console.WriteLine("4 - List Contacts");
+                Console.WriteLine("5 - Sort by ID");
+                Console.WriteLine("6 - Search by ID");
+                Console.WriteLine("7 - Exit");
+
+                string choice = Console.ReadLine();
+
+                if (choice == "1")
+                {
+                    int id = int.Parse(Console.ReadLine());
+                    if (contacts.ContainsKey(id))
+                    {
+                        Console.WriteLine("Contact ID already exists.");
+                        continue;
+                    }
+                    Contact c = new Contact();
+                    c.ContactId = id;
+                    c.Name = Console.ReadLine();
+                    c.Age = int.Parse(Console.ReadLine());
+                    c.Gender = Console.ReadLine();
+                    c.PhoneNumber = Console.ReadLine();
+                    c.Email = Console.ReadLine();
+                    contacts[id] = c;
+                    Console.WriteLine("Contact added.");
+                }
+                else if (choice == "2")
+                {
+                    int id = int.Parse(Console.ReadLine());
+                    if (!contacts.ContainsKey(id))
+                    {
+                        Console.WriteLine("Contact not found.");
+                        continue;
+                    }
+                    var c = contacts[id];
+                    c.Name = Console.ReadLine();
+                    c.Age = int.Parse(Console.ReadLine());
+                    c.Gender = Console.ReadLine();
+                    c.PhoneNumber = Console.ReadLine();
+                    c.Email = Console.ReadLine();
+                    Console.WriteLine("Contact updated.");
+                }
+                else if (choice == "3")
+                {
+                    int id = int.Parse(Console.ReadLine());
+                    if (contacts.Remove(id)) Console.WriteLine("Contact deleted.");
+                    else Console.WriteLine("Contact not found.");
+                }
+                else if (choice == "4")
+                {
+                    foreach (var c in contacts.Values) c.Display();
+                }
+                else if (choice == "5")
+                {
+                    foreach (var c in contacts.OrderBy(x => x.Key).Select(x => x.Value)) c.Display();
+                }
+                else if (choice == "6")
+                {
+                    int id = int.Parse(Console.ReadLine());
+                    if (contacts.TryGetValue(id, out Contact c)) c.Display();
+                    else Console.WriteLine("Contact not found.");
+                }
+                else if (choice == "7") break;
+                else Console.WriteLine("Invalid choice.");
+            }
+        }
+    }
+}

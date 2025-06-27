@@ -1,0 +1,115 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace ContactApp
+{
+    public class Contact
+    {
+        public int ContactId { get; set; }
+        public string Name { get; set; }
+        public int Age { get; set; }
+        public string Gender { get; set; }
+        public string PhoneNumber { get; set; }
+        public string Email { get; set; }
+
+        public void Display()
+        {
+            Console.WriteLine($"ID: {ContactId}, Name: {Name}, Age: {Age}, Gender: {Gender}, Phone: {PhoneNumber}, Email: {Email}");
+        }
+    }
+
+    public class ContactManager
+    {
+        private Dictionary<int, Contact> contacts = new Dictionary<int, Contact>();
+
+        public void Add(Contact c)
+        {
+            if (contacts.ContainsKey(c.ContactId))
+            {
+                Console.WriteLine("Contact ID already exists.");
+                return;
+            }
+            contacts[c.ContactId] = c;
+            Console.WriteLine("Contact added.");
+        }
+
+        public void Update(int id)
+        {
+            if (!contacts.ContainsKey(id))
+            {
+                Console.WriteLine("Contact not found.");
+                return;
+            }
+            Contact c = contacts[id];
+            c.Name = Console.ReadLine();
+            c.Age = int.Parse(Console.ReadLine());
+            c.Gender = Console.ReadLine();
+            c.PhoneNumber = Console.ReadLine();
+            c.Email = Console.ReadLine();
+            Console.WriteLine("Contact updated.");
+        }
+
+        public void Delete(int id)
+        {
+            if (contacts.Remove(id)) Console.WriteLine("Contact deleted.");
+            else Console.WriteLine("Contact not found.");
+        }
+
+        public void List()
+        {
+            foreach (var c in contacts.Values) c.Display();
+        }
+
+        public void SortById()
+        {
+            foreach (var c in contacts.OrderBy(x => x.Key).Select(x => x.Value)) c.Display();
+        }
+
+        public void SearchById(int id)
+        {
+            if (contacts.TryGetValue(id, out Contact c)) c.Display();
+            else Console.WriteLine("Contact not found.");
+        }
+    }
+
+    public class Program
+    {
+        public static void Main(string[] args)
+        {
+            ContactManager manager = new ContactManager();
+
+            while (true)
+            {
+                Console.WriteLine("1 - Add Contact");
+                Console.WriteLine("2 - Update Contact");
+                Console.WriteLine("3 - Delete Contact");
+                Console.WriteLine("4 - List Contacts");
+                Console.WriteLine("5 - Sort by ID");
+                Console.WriteLine("6 - Search by ID");
+                Console.WriteLine("7 - Exit");
+
+                string choice = Console.ReadLine();
+
+                if (choice == "1")
+                {
+                    Contact c = new Contact();
+                    c.ContactId = int.Parse(Console.ReadLine());
+                    c.Name = Console.ReadLine();
+                    c.Age = int.Parse(Console.ReadLine());
+                    c.Gender = Console.ReadLine();
+                    c.PhoneNumber = Console.ReadLine();
+                    c.Email = Console.ReadLine();
+                    manager.Add(c);
+                }
+                else if (choice == "2") manager.Update(int.Parse(Console.ReadLine()));
+                else if (choice == "3") manager.Delete(int.Parse(Console.ReadLine()));
+                else if (choice == "4") manager.List();
+                else if (choice == "5") manager.SortById();
+                else if (choice == "6") manager.SearchById(int.Parse(Console.ReadLine()));
+                else if (choice == "7") break;
+                else Console.WriteLine("Invalid choice.");
+            }
+        }
+    }
+}
